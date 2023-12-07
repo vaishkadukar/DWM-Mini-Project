@@ -6,6 +6,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import mode
 from scipy.stats import norm
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 from PIL import Image
 
 favicon = Image.open("data-mining.png")
@@ -133,3 +135,27 @@ if selector == "Exploring Data":
 
 if selector == "Cleaning Data":
     st.write("Cleaning")
+
+
+if selector == "Clustering Data":
+    st.write("Clustering")
+    df = st.session_state['data']
+    selected_columns = st.multiselect("Select columns for visualization", df.columns) 
+    num_clusters = st.number_input("Enter the number of clusters", min_value=2, max_value=10, value=3, step=1)
+
+    if len(selected_columns) < 2:
+        st.warning("Please select at least two columns for visualization.")
+    else:
+        temp = df
+        data_for_clustering = temp[selected_columns]
+        scaler = StandardScaler()
+        data_scaled = scaler.fit_transform(data_for_clustering)
+        # Perform k-means clustering
+        kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+        clusters = kmeans.fit_predict(data_scaled)
+        # df['Cluster'] = clusters
+        temp['Cluster'] = clusters
+        st.subheader("Scatter Plot of Clusters:")
+        fig, ax = plt.subplots()
+        sns.scatterplot(data=df, x=selected_columns[0], y=selected_columns[1], hue='Cluster', palette='viridis', ax=ax)
+        st.pyplot(fig)
