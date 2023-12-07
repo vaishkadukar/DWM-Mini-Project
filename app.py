@@ -6,89 +6,91 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import mode
 from scipy.stats import norm
+from PIL import Image
+
+favicon = Image.open("data-mining.png")
+st.set_page_config(page_title='DWM Mini Project', page_icon = favicon, layout = 'wide', initial_sidebar_state = 'auto')
+
 
 #Horizontal menu
-selector = option_menu(menu_title='Menu Options',options=['Home','Cleaning','Visualisations','Exploration','Classification'],default_index=0,orientation='horizontal',icons=['home','v','v','v','v'])
+selector = option_menu(menu_title='Welcome!', options=['Home','Cleaning','Visualizations','Exploration','Classification'], default_index=0, orientation='horizontal', icons=['home','v','v','v','v'])
 
 if "data" not in st.session_state:
-    st.session_state["data"] =""
+    st.session_state["data"] = ""
 
 if selector == "Home":
     with st.container():
-        st.title("Choose a File: ")
+        st.subheader("Choose a File: ")
         uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
         if uploaded_file is not None:
             st.success("File uploaded successfully!")
             df = pd.read_csv(uploaded_file) # Use 'openpyxl' as the engine for xlsx files
-            st.subheader("Data from Excel File:")
+            st.text("Data from CSV File:")
             st.dataframe(df)
-
             st.session_state['data']= df
             
-        
 
-
-if selector == "Visualisations":
+if selector == "Visualizations":
     with st.container():
-        
-            df = st.session_state['data']
-            selected_columns = st.multiselect("Select columns for visualization", df.columns)
+        df = st.session_state['data']
+        selected_columns = st.multiselect("Select columns for visualization", df.columns) 
 
-            if not selected_columns:
-                st.warning("Please select at least one column for visualization.")
-            else:
-                # Choose the type of visualization
-                plot_type = st.selectbox("Select the type of visualization", ["Bar Chart", "Line Chart","Scatter Plot", "Box Plot","Histogram","Pie Chart", "Heatmap", "Area Chart", "Violin Plot"])
+        if len(selected_columns) < 2:
+            st.warning("Please select at least two columns for visualization.")
+            
+        else:
+            # Choose the type of visualization
+            plot_type = st.selectbox("Select the type of visualization", ["Bar Chart", "Line Chart","Scatter Plot", "Box Plot","Histogram","Pie Chart", "Heatmap", "Area Chart", "Violin Plot"])
 
-                # Create the selected plot
-                st.subheader(f"{plot_type} based on selected columns:")
-                if plot_type == "Bar Chart":
-                    fig = px.bar(df, x=selected_columns[0] ,y=selected_columns[1], title='Bar Chart', color_discrete_sequence=["#8785A2"]*len(selected_columns))
-                    st.plotly_chart(fig)
-                elif plot_type == "Line Chart":
-                    fig = px.line(df, x=selected_columns,y=selected_columns[1], title='Line Chart')
-                    st.plotly_chart(fig)
-                elif plot_type == "Scatter Plot":
-                    fig = px.scatter(df, x=selected_columns[0], y=selected_columns[1], title='Scatter Plot')
-                    st.plotly_chart(fig)
-                elif plot_type == "Box Plot":
-                    fig, ax = plt.subplots()
-                    sns.boxplot(x=selected_columns[0], y=selected_columns[1], data=df, ax=ax)
-                    st.pyplot(fig)
-                elif plot_type == "Histogram":
-                    fig = px.histogram(df, x=selected_columns[0], title='Histogram')
-                    st.plotly_chart(fig)
-                elif plot_type == "Pie Chart":
-                    fig = px.pie(df, names=selected_columns[0], title='Pie Chart')
-                    st.plotly_chart(fig)
-                elif plot_type == "Heatmap":
-                    if selected_columns:
-                        # Select only the relevant columns from the DataFrame
-                        df_subset = df[selected_columns]
+            # Create the selected plot
+            st.subheader(f"{plot_type} based on selected columns:")
+            if plot_type == "Bar Chart":
+                fig = px.bar(df, x=selected_columns[0] ,y=selected_columns[1], title='Bar Chart', color_discrete_sequence=["#8785A2"]*len(selected_columns))
+                st.plotly_chart(fig)
+            elif plot_type == "Line Chart":
+                fig = px.line(df, x=selected_columns,y=selected_columns[1], title='Line Chart')
+                st.plotly_chart(fig)
+            elif plot_type == "Scatter Plot":
+                fig = px.scatter(df, x=selected_columns[0], y=selected_columns[1], title='Scatter Plot')
+                st.plotly_chart(fig)
+            elif plot_type == "Box Plot":
+                fig, ax = plt.subplots()
+                sns.boxplot(x=selected_columns[0], y=selected_columns[1], data=df, ax=ax)
+                st.pyplot(fig)
+            elif plot_type == "Histogram":
+                fig = px.histogram(df, x=selected_columns[0], title='Histogram')
+                st.plotly_chart(fig)
+            elif plot_type == "Pie Chart":
+                fig = px.pie(df, names=selected_columns[0], title='Pie Chart')
+                st.plotly_chart(fig)
+            elif plot_type == "Heatmap":
+                if selected_columns:
+                    # Select only the relevant columns from the DataFrame
+                    df_subset = df[selected_columns]
 
-                        # Check if the selected columns are numeric
-                        if df_subset.select_dtypes(include='number').shape[1] == len(selected_columns):
-                            # Create a heatmap using Plotly Express
-                            fig = px.imshow(df_subset.corr(), x=selected_columns, y=selected_columns, title='Heatmap')
-                            st.plotly_chart(fig)
-                        else:
-                            st.error("Selected columns must contain numeric data for the heatmap.")
+                    # Check if the selected columns are numeric
+                    if df_subset.select_dtypes(include='number').shape[1] == len(selected_columns):
+                        # Create a heatmap using Plotly Express
+                        fig = px.imshow(df_subset.corr(), x=selected_columns, y=selected_columns, title='Heatmap')
+                        st.plotly_chart(fig)
                     else:
-                        st.warning("Please select columns for the heatmap.")
-                elif plot_type == "Area Chart":
-                    fig = px.area(df, x=selected_columns[0], y=selected_columns[1], title='Area Chart')
-                    st.plotly_chart(fig)
-                elif plot_type == "Violin Plot":
-                    fig = px.violin(df, x=selected_columns[0], y=selected_columns[1], title='Violin Plot')
-                    st.plotly_chart(fig)
+                        st.error("Selected columns must contain numeric data for the heatmap.")
+                else:
+                    st.warning("Please select columns for the heatmap.")
+            elif plot_type == "Area Chart":
+                fig = px.area(df, x=selected_columns[0], y=selected_columns[1], title='Area Chart')
+                st.plotly_chart(fig)
+            elif plot_type == "Violin Plot":
+                fig = px.violin(df, x=selected_columns[0], y=selected_columns[1], title='Violin Plot')
+                st.plotly_chart(fig)
 
 if selector == "Exploration":
-    st.write('exploration')
     df = st.session_state['data']
+
     numeric_columns = df.select_dtypes(include=['number']).columns
-    selected_column= st.selectbox("Select columns for visualization", numeric_columns)
+    selected_column= st.selectbox("Select a column for exploration", numeric_columns)
     column_data = df[selected_column]
-    if not  selected_column:
+    if not selected_column:
         st.warning("Please select one column for visualization.")
     else:
         mean_value = column_data.mean()
@@ -128,7 +130,6 @@ if selector == "Exploration":
         plt.legend()
         plt.show()
         st.pyplot()
-
 
 if selector == "Cleaning":
     st.write("Cleaning")
