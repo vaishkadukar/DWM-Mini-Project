@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 #Horizontal menu
 selector = option_menu(menu_title='Menu Options',options=['Cleaning','Visualisations','Classification'],default_index=1,orientation='horizontal')
 with st.container():
-    st.write('hello from header')
+    st.write('Hello, this is Header from Streamlit.')
 
 if selector == "Visualisations":
     with st.container():
