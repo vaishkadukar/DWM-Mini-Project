@@ -13,7 +13,7 @@ st.set_page_config(page_title='DWM Mini Project', page_icon = favicon, layout = 
 
 
 #Horizontal menu
-selector = option_menu(menu_title='Welcome!', options=['Home','Cleaning','Visualizations','Exploration','Classification'], default_index=0, orientation='horizontal', icons=['home','v','v','v','v'])
+selector = option_menu(menu_title='Welcome!', options=['Home','Cleaning Data','Visualizing Data','Exploring Data','Clustering Data'], default_index=0, orientation='horizontal', icons=['home','v','v','v','v'])
 
 if "data" not in st.session_state:
     st.session_state["data"] = ""
@@ -30,7 +30,7 @@ if selector == "Home":
             st.session_state['data']= df
             
 
-if selector == "Visualizations":
+if selector == "Visualizing Data":
     with st.container():
         df = st.session_state['data']
         selected_columns = st.multiselect("Select columns for visualization", df.columns) 
@@ -84,7 +84,7 @@ if selector == "Visualizations":
                 fig = px.violin(df, x=selected_columns[0], y=selected_columns[1], title='Violin Plot')
                 st.plotly_chart(fig)
 
-if selector == "Exploration":
+if selector == "Exploring Data":
     df = st.session_state['data']
 
     numeric_columns = df.select_dtypes(include=['number']).columns
@@ -131,5 +131,5 @@ if selector == "Exploration":
         plt.show()
         st.pyplot()
 
-if selector == "Cleaning":
+if selector == "Cleaning Data":
     st.write("Cleaning")
