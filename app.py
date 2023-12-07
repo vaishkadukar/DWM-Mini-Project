@@ -132,4 +132,42 @@ if selector == "Exploring Data":
         st.pyplot()
 
 if selector == "Cleaning Data":
-    st.write("Cleaning")
+    df = st.session_state['data']
+
+    # User interface for data cleaning
+    st.header("Data Cleaning Options")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        # Button to remove rows with empty cells
+        if st.button("Remove Rows with Empty Cells"):
+            original_rows = df.shape[0]
+            df = df.dropna()
+            st.session_state['data'] = df
+            deleted_rows = original_rows - df.shape[0]
+            st.toast(f"{deleted_rows} rows with empty cells removed.")
+            st.write("DataFrame after removing rows with empty cells:")
+            st.write(df)
+
+    with col2:
+        if st.button("Fill with Mean"):
+            selected_column = st.selectbox("Select a numeric column:", df.select_dtypes(include=['number']).columns)
+            fill_value = df[selected_column].mean()
+            df[selected_column] = df[selected_column].fillna(fill_value)
+            st.session_state['data'] = df
+
+            st.success(f"Missing values in '{selected_column}' filled successfully with Mean.")
+            st.write("DataFrame after filling missing values:")
+            st.write(df)
+
+    with col3:
+        if st.button("Fill with Median"):
+            selected_column = st.selectbox("Select a numeric column:", df.select_dtypes(include=['number']).columns)
+            fill_value = df[selected_column].median()
+            df[selected_column] = df[selected_column].fillna(fill_value)
+            st.session_state['data'] = df
+
+            st.success(f"Missing values in '{selected_column}' filled successfully with Median.")
+            st.write("DataFrame after filling missing values:")
+            st.write(df)
