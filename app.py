@@ -6,9 +6,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 #Horizontal menu
-selector = option_menu(menu_title='Menu Options',options=['Cleaning','Visualisations','Classification'],default_index=1,orientation='horizontal')
+selector = option_menu(menu_title='Menu Options',options=['Home','Cleaning','Visualisations','Classification'],default_index=0,orientation='horizontal',icons=['home','v','v','v'])
 with st.container():
     st.write('hello from header')
+if selector == "Home":
+    with st.container():
+        st.write('Home')
+
 
 if selector == "Visualisations":
     with st.container():
@@ -70,3 +74,5 @@ if selector == "Visualisations":
                 elif plot_type == "Violin Plot":
                     fig = px.violin(df, x=selected_columns[0], y=selected_columns[1], title='Violin Plot')
                     st.plotly_chart(fig)
+
+# if selector == ""
