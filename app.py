@@ -15,7 +15,7 @@ st.set_page_config(page_title='DWM Mini Project', page_icon = favicon, layout = 
 
 
 #Horizontal menu
-selector = option_menu(menu_title='Welcome!', options=['Home','Cleaning Data','Visualizing Data','Exploring Data','Clustering Data'], default_index=0, orientation='horizontal', icons=['home','v','v','v','v'])
+selector = option_menu(menu_title='Welcome!', options=['Home','Cleaning Data','Visualizing Data','Exploring Data','Clustering Data'], default_index=0, orientation='horizontal', icons=['home','v','v','v','v'], menu_icon='clipboard-data')
 
 if "data" not in st.session_state:
     st.session_state["data"] = ""
@@ -153,33 +153,39 @@ if selector == "Cleaning Data":
             st.write(df)
 
     with col2:
-        if st.button("Fill with Mean"):
-            selected_column = st.selectbox("Select a numeric column:", df.select_dtypes(include=['number']).columns)
-            fill_value = df[selected_column].mean()
-            df[selected_column] = df[selected_column].fillna(fill_value)
-            st.session_state['data'] = df
+        selected_column_input = st.text_input("Enter the name of a numeric column:", key="mean1")
+        confirm_button = st.button("Confirm", key="mean2")
 
-            st.success(f"Missing values in '{selected_column}' filled successfully with Mean.")
-            st.write("DataFrame after filling missing values:")
-            st.write(df)
+        if confirm_button:
+            if selected_column_input in df.select_dtypes(include=['number']).columns:
+                fill_value = df[selected_column_input].mean()
+                df[selected_column_input] = df[selected_column_input].fillna(fill_value)
+                st.success(f"Missing values in '{selected_column_input}' filled successfully with Mean.")
+                st.write("DataFrame after filling missing values:")
+                st.write(df)
+            else:
+                st.warning(f"Column '{selected_column_input}' does not exist.")
 
     with col3:
-        if st.button("Fill with Median"):
-            selected_column = st.selectbox("Select a numeric column:", df.select_dtypes(include=['number']).columns)
-            fill_value = df[selected_column].median()
-            df[selected_column] = df[selected_column].fillna(fill_value)
-            st.session_state['data'] = df
+        selected_column_input = st.text_input("Enter the name of a numeric column:", key="median1")
+        confirm_button = st.button("Confirm", key="median2")
 
-            st.success(f"Missing values in '{selected_column}' filled successfully with Median.")
-            st.write("DataFrame after filling missing values:")
-            st.write(df)
+        if confirm_button:
+            if selected_column_input in df.select_dtypes(include=['number']).columns:
+                fill_value = df[selected_column_input].median()
+                df[selected_column_input] = df[selected_column_input].fillna(fill_value)
+                st.success(f"Missing values in '{selected_column_input}' filled successfully with Median.")
+                st.write("DataFrame after filling missing values:")
+                st.write(df)
+            else:
+                st.warning(f"Column '{selected_column_input}' does not exist.")
 
 
 if selector == "Clustering Data":
     st.write("Clustering")
     df = st.session_state['data']
-    selected_columns = st.multiselect("Select columns for visualization", df.columns) 
-    num_clusters = st.number_input("Enter the number of clusters", min_value=2, max_value=10, value=3, step=1)
+    selected_columns = st.multiselect("Select columns for visualization", df.select_dtypes(include=['number']).columns) 
+    num_clusters = st.number_input("Enter the number of clusters", min_value=2, max_value=4, value=2, step=1)
 
     if len(selected_columns) < 2:
         st.warning("Please select at least two columns for visualization.")
