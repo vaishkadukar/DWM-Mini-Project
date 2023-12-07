@@ -4,27 +4,34 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+from scipy.stats import mode
+from scipy.stats import norm
 
 #Horizontal menu
-selector = option_menu(menu_title='Menu Options',options=['Home','Cleaning','Visualisations','Classification'],default_index=0,orientation='horizontal',icons=['home','v','v','v'])
-with st.container():
-    st.write('hello from header')
+selector = option_menu(menu_title='Menu Options',options=['Home','Cleaning','Visualisations','Exploration','Classification'],default_index=0,orientation='horizontal',icons=['home','v','v','v','v'])
+
+if "data" not in st.session_state:
+    st.session_state["data"] =""
+
 if selector == "Home":
-    with st.container():
-        st.write('Home')
-
-
-if selector == "Visualisations":
     with st.container():
         st.title("Choose a File: ")
         uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
         if uploaded_file is not None:
             st.success("File uploaded successfully!")
-            df = pd.read_csv(uploaded_file) # Use 'openpyxl' as the engine for xlsx files :engine='openpyxl'
+            df = pd.read_csv(uploaded_file) # Use 'openpyxl' as the engine for xlsx files
             st.subheader("Data from Excel File:")
             st.dataframe(df)
-            # print(df)
 
+            st.session_state['data']= df
+            
+        
+
+
+if selector == "Visualisations":
+    with st.container():
+        
+            df = st.session_state['data']
             selected_columns = st.multiselect("Select columns for visualization", df.columns)
 
             if not selected_columns:
@@ -75,4 +82,53 @@ if selector == "Visualisations":
                     fig = px.violin(df, x=selected_columns[0], y=selected_columns[1], title='Violin Plot')
                     st.plotly_chart(fig)
 
-# if selector == ""
+if selector == "Exploration":
+    st.write('exploration')
+    df = st.session_state['data']
+    numeric_columns = df.select_dtypes(include=['number']).columns
+    selected_column= st.selectbox("Select columns for visualization", numeric_columns)
+    column_data = df[selected_column]
+    if not  selected_column:
+        st.warning("Please select one column for visualization.")
+    else:
+        mean_value = column_data.mean()
+        median_value = column_data.median()
+        # mode_value = mode(column_data).mode[0]
+        max_value = column_data.max()
+        min_value = column_data.min()
+        midrange_value = (max_value + min_value) / 2
+        data_range = max_value - min_value
+        quartiles = column_data.quantile([0.25, 0.5, 0.75])
+        iqr_value = quartiles[0.75] - quartiles[0.25]
+        variance_value = column_data.var()
+        std_deviation_value = column_data.std()
+
+        st.subheader(f"Statistics for {selected_column}:")
+        st.write(f"Mean: {mean_value}")
+        st.write(f"Median: {median_value}")
+        # st.write(f"Mode: {mode_value}")
+        st.write(f"Maximum: {max_value}")
+        st.write(f"Minimum: {min_value}")
+        st.write(f"Midrange: {midrange_value}")
+        st.write(f"Range: {data_range}")
+        st.write(f"Quartiles: Q1={quartiles[0.25]}, Q2={quartiles[0.5]}, Q3={quartiles[0.75]}")
+        st.write(f"IQR (Interquartile Range): {iqr_value}")
+        st.write(f"Variance: {variance_value}")
+        st.write(f"Standard Deviation: {std_deviation_value}")
+
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        # st.subheader(f"Histogram for {selected_column}:")
+        # plt.hist(column_data, bins=20, color='skyblue', edgecolor='black')
+        # st.pyplot()
+
+        plt.hist(column_data, bins='auto', density=True, alpha=0.7, color='skyblue',edgecolor='black',label='Histogram')
+        x = range(int(min(column_data)), int(max(column_data)) + 1)
+        pdf = norm.pdf(x, mean_value, std_deviation_value)
+        plt.plot(x, pdf, color='red', label='Frequency Curve')
+        plt.legend()
+        plt.show()
+        st.pyplot()
+
+
+if selector == "Cleaning":
+    st.write("Cleaning")
