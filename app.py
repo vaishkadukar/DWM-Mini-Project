@@ -13,8 +13,6 @@ from PIL import Image
 favicon = Image.open("data-mining.png")
 st.set_page_config(page_title='DWM Mini Project', page_icon = favicon, layout = 'wide', initial_sidebar_state = 'auto')
 
-
-#Horizontal menu
 selector = option_menu(menu_title='Welcome!', options=['Home','Cleaning Data','Visualizing Data','Exploring Data','Clustering Data'], default_index=0, orientation='horizontal', icons=['home','v','v','v','v'], menu_icon='clipboard-data')
 
 if "data" not in st.session_state:
@@ -26,7 +24,7 @@ if selector == "Home":
         uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
         if uploaded_file is not None:
             st.success("File uploaded successfully!")
-            df = pd.read_csv(uploaded_file) # Use 'openpyxl' as the engine for xlsx files
+            df = pd.read_csv(uploaded_file) 
             st.text("Data from CSV File:")
             st.dataframe(df)
             st.session_state['data']= df
@@ -41,10 +39,8 @@ if selector == "Visualizing Data":
             st.warning("Please select at least two columns for visualization.")
             
         else:
-            # Choose the type of visualization
             plot_type = st.selectbox("Select the type of visualization", ["Bar Chart", "Line Chart","Scatter Plot", "Box Plot","Histogram","Pie Chart", "Heatmap", "Area Chart", "Violin Plot"])
 
-            # Create the selected plot
             st.subheader(f"{plot_type} based on selected columns:")
             if plot_type == "Bar Chart":
                 fig = px.bar(df, x=selected_columns[0] ,y=selected_columns[1], title='Bar Chart', color_discrete_sequence=["#8785A2"]*len(selected_columns))
@@ -67,12 +63,9 @@ if selector == "Visualizing Data":
                 st.plotly_chart(fig)
             elif plot_type == "Heatmap":
                 if selected_columns:
-                    # Select only the relevant columns from the DataFrame
                     df_subset = df[selected_columns]
 
-                    # Check if the selected columns are numeric
                     if df_subset.select_dtypes(include='number').shape[1] == len(selected_columns):
-                        # Create a heatmap using Plotly Express
                         fig = px.imshow(df_subset.corr(), x=selected_columns, y=selected_columns, title='Heatmap')
                         st.plotly_chart(fig)
                     else:
@@ -97,7 +90,6 @@ if selector == "Exploring Data":
     else:
         mean_value = column_data.mean()
         median_value = column_data.median()
-        # mode_value = mode(column_data).mode[0]
         max_value = column_data.max()
         min_value = column_data.min()
         midrange_value = (max_value + min_value) / 2
@@ -110,7 +102,6 @@ if selector == "Exploring Data":
         st.subheader(f"Statistics for {selected_column}:")
         st.write(f"Mean: {mean_value}")
         st.write(f"Median: {median_value}")
-        # st.write(f"Mode: {mode_value}")
         st.write(f"Maximum: {max_value}")
         st.write(f"Minimum: {min_value}")
         st.write(f"Midrange: {midrange_value}")
@@ -121,9 +112,6 @@ if selector == "Exploring Data":
         st.write(f"Standard Deviation: {std_deviation_value}")
 
         st.set_option('deprecation.showPyplotGlobalUse', False)
-        # st.subheader(f"Histogram for {selected_column}:")
-        # plt.hist(column_data, bins=20, color='skyblue', edgecolor='black')
-        # st.pyplot()
 
         plt.hist(column_data, bins='auto', density=True, alpha=0.7, color='skyblue',edgecolor='black',label='Histogram')
         x = range(int(min(column_data)), int(max(column_data)) + 1)
@@ -136,13 +124,11 @@ if selector == "Exploring Data":
 if selector == "Cleaning Data":
     df = st.session_state['data']
 
-    # User interface for data cleaning
     st.header("Data Cleaning Options")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        # Button to remove rows with empty cells
         if st.button("Remove Rows with Empty Cells"):
             original_rows = df.shape[0]
             df = df.dropna()
@@ -194,10 +180,8 @@ if selector == "Clustering Data":
         data_for_clustering = temp[selected_columns]
         scaler = StandardScaler()
         data_scaled = scaler.fit_transform(data_for_clustering)
-        # Perform k-means clustering
         kmeans = KMeans(n_clusters=num_clusters, random_state=42)
         clusters = kmeans.fit_predict(data_scaled)
-        # df['Cluster'] = clusters
         temp['Cluster'] = clusters
         st.subheader("Scatter Plot of Clusters:")
         fig, ax = plt.subplots()
